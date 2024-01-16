@@ -2,7 +2,8 @@
 This is a boilerplate pipeline 'data_preparation'
 generated using Kedro 0.18.14
 """
-from kedro.pipeline import Pipeline, pipeline, node from .nodes import merge_datasets, clean_data, generate_datetime_features
+from kedro.pipeline import Pipeline, pipeline, node
+from .nodes import clean_data
 def create_pipeline(**kwargs) -> Pipeline: return pipeline([
 node(
                 func=clean_data,
