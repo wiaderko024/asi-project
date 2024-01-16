@@ -16,3 +16,5 @@ pytest~=7.2
 traitlets<5.10.0
 pandas==1.5.3
 scipy~=1.11.4
+fastapi~=0.109.0
+uvicorn~=0.26.0
