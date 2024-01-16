@@ -2,3 +2,6 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+data1:
+    type: pandas.CSVDataSet
+    filepath: data/01_raw/pakwheels_used_car_data_v02.csv
