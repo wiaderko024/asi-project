@@ -5,3 +5,9 @@
 data1:
     type: pandas.CSVDataSet
     filepath: data/01_raw/pakwheels_used_car_data_v02.csv
+cleaned_data:
+    type: pandas.ParquetDataSet
+    filepath: data/05_model_input/cleaned_data.parquet
+generated_model:
+    type: pickle.PickleDataSet
+    filepath: data/07_model_output/model.pkl
