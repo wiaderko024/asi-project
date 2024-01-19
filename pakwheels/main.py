@@ -1,34 +1,60 @@
-from fastapi import FastAPI, HTTPException
+import os
+from fastapi import FastAPI
+import pandas as pd
 from pydantic import BaseModel
-from kedro.io import DataCatalog, MemoryDataset
-from kedro.runner import SequentialRunner
-from src.pakwheels.pipelines.data_preparation.pipeline import create_pipeline
+import numpy as np
+import joblib
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import RobustScaler
+from scipy.special import boxcox1p
+from scipy.stats import boxcox_normmax
 
 app = FastAPI()
 
 
-class PipelineInput(BaseModel):
-    input_value: int
+class PredictionInput(BaseModel):
+    year: int
+    assembly: str
+    body: str
+    make: str
+    city: str
+    color: str
+    registered: str
+    model: str
+    engine: float
+    transmission: str
+    fuel: str
+    mileage: float
 
 
-@app.get("/pakwheels")
-def run_pipeline(input: PipelineInput = None):
-    input = PipelineInput(input_value=10)
-    # Create the pipeline
-    pipeline = create_pipeline()
+@app.post("/run_prediction")
+def run_prediction(prediction_data: PredictionInput):
+    model_path = "data/07_model_output/linear_regression_model.joblib"
 
-    # Set up a DataCatalog to load the dataset
-    io = DataCatalog({"data1": MemoryDataset()})
+    if os.path.exists(model_path):
+        with open(model_path, "rb") as generated_model:
+            model: LinearRegression = joblib.load(generated_model)
+    else:
+        return {"error": "Model not found"}
 
-    # Assuming `data1` is the dataset you want to pass to the pipeline
-    data1 = io.load("data1")
+    input_df = pd.DataFrame([prediction_data.model_dump(exclude_unset=True)])
 
-    # Run the pipeline and get the result
-    result = SequentialRunner().run(pipeline, catalog={"data1": data1})
+    input_df["engine"] = np.log1p(input_df["engine"])
 
-    return {"result": result}
+    if "mileage" in input_df.columns and len(input_df["mileage"].unique()) > 1:
+        input_df["mileage"] = boxcox1p(
+            input_df["mileage"], boxcox_normmax(input_df["mileage"] + 1)
+        )
 
+    # FIXME: fucks up the code
+    cat_cols = ["assembly", "transmission", "fuel"]
+    input_df = pd.get_dummies(input_df, columns=cat_cols, drop_first=True)
 
-@app.get("/test")
-def test():
-    return {"result": {"test": "success"}}
+    scalar = RobustScaler()
+    scaled_input = scalar.fit_transform(input_df)
+
+    predictions = model.predict(scaled_input)
+
+    predictions_list = predictions.tolist()
+
+    return {"result": {"model_predictions": predictions_list}}
