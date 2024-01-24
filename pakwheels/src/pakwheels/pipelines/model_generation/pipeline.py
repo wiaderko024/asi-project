@@ -12,7 +12,7 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=generate_model,
-                inputs=["cleaned_data"],
+                inputs=["trained_model"],
                 outputs="generated_model",
                 name="generate_model_node",
             )
