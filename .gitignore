@@ -42,6 +42,8 @@ out/
 .LSOverride
 .Trashes
 
+pakwheels/data/07_model_output/*
+
 # Vim
 *~
 .*.swo
