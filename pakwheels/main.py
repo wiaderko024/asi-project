@@ -37,7 +37,7 @@ def run_prediction(prediction_data: PredictionInput):
             "price_prediction": {
                 prediction_data.make: {
                     prediction_data.model: {
-                        "rupess": predictions_list[0],
+                        "rupees": predictions_list[0],
                         "dollars": predictions_list[0] * 0.0067,
                         "zlotys": predictions_list[0] * 0.026,
                     }
